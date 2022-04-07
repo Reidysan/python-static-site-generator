@@ -1,10 +1,14 @@
 from importlib.resources import path
 from pathlib import Path
 
+from ssg.parsers import Parser
+
 class Site:
     def __init__(self, source, dest):
         self.source = Path(source)
         self.dest = Path(dest)
+        self.parsers = None
+        parsers = parsers or []
     
     def create_dir(self, path):
         directory = (self.dest / path.relative_to(self.source))
@@ -15,3 +19,16 @@ class Site:
         for path in self.source.rglob("*"):
             if path.is_dir():
                 self.create_dir(path)
+            elif path.is_file():
+                Site.run_parser(path)
+
+    def load_parser(self, extension):
+        for parser in self.parsers:
+            if Parser.valid_extension(parser):
+                return parser
+
+    def run_parser(path):
+        parser = path.load_parser(path.suffix)
+        if parser is not None:
+            parser.parse(path.source, path.dest)
+        else: NotImplemented
