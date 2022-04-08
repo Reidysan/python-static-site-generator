@@ -1,7 +1,7 @@
 from importlib.resources import path
 from pathlib import Path
-
 from ssg.parsers import Parser
+import sys
 
 class Site:
     def __init__(self, source, dest, parsers = None):
@@ -31,4 +31,8 @@ class Site:
         if parser is not None:
             parser.parse(path, self.source, self.dest)
         else:
-            print("Not Implemented")
+            self.error("No parser for the {} extension, file skipped!")
+
+    @staticmethod
+    def error(message):
+        sys.stderr.write("\x1b[1;31m{}\n").format(message)
